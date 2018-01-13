@@ -1,0 +1,20 @@
+{
+  "products": [
+    {
+      "id": "jcw",
+      "name": "Jumbo Chicken Wrap"
+    },
+    {
+      "id": "vl",
+      "name": "Vegetarian Lasagne"
+    },
+    {
+      "id": "crf",
+      "name": "Chicken Rice Feast"
+    },
+    {
+      "id": "gcb",
+      "name": "Grilled Chicken Breast"
+    }
+  ]
+}

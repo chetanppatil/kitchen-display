@@ -1,0 +1,31 @@
+{
+  "name": "kitchen-display",
+  "version": "1.0.0",
+  "description": "Food Order, Kitchen Display System",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chetan07j/kitchen-display.git"
+  },
+  "keywords": [
+    "kitchen",
+    "order",
+    "food"
+  ],
+  "author": "chetan0779@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Chetan07j/kitchen-display/issues"
+  },
+  "homepage": "https://github.com/Chetan07j/kitchen-display#readme",
+  "dependencies": {
+    "cors": "^2.8.4",
+    "express": "^4.16.2",
+    "q": "^1.5.1",
+    "underscore": "^1.8.3"
+  }
+}
