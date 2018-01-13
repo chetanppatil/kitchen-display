@@ -9,6 +9,7 @@ global.config = require('./config/config.json');
 global.ordersPath = './data/orders.json';
 global.dbQuery = require('./services/pgdbQuery');
 global.queries = require('./services/queryFile');
+global.commonFn = require('./services/commonFunctions');
 
 
 const app = express();

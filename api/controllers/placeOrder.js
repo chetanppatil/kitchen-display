@@ -18,29 +18,6 @@ let processOrder = (inputData) => {
   return deferred.promise;
 };
 
-let checkProductExists = (input) => {
-  let deferred = q.defer();
-  let qry = queries.checkProductExists(input.item.productCode);
-  // console.log('QRY::', qry);
-  dbQuery.execute(qry)
-  .then((dbResult) => {
-    // console.log('DBRES::', dbResult[0]);
-    if (dbResult[0].id) {
-      deferred.resolve('productExists');
-    } else {
-      deferred.reject({
-        code: "ERR004",
-        error: "Product does not exists!"
-      });
-    }
-  })
-  .catch((err) => {
-    deferred.reject({ dbErr: err});
-  });
-
-  return deferred.promise;
-};
-
 let validateInput = (data) => {
   let deferred = q.defer();
   if (data && !data.item) {
@@ -74,7 +51,7 @@ var placeOrder = (req, res) => {
   validateInput(reqBody)
     .then((result) => {
       // console.log('VALIDATION: ', result);
-      return checkProductExists(reqBody);
+      return commonFn.checkProductExists(reqBody.item.productCode);
     })
     .then((checkProductRes) => {
       // console.log('FILE CHECK RES:', checkProductRes);
