@@ -1,6 +1,9 @@
 const express = require('express');
+const app = express();
 var bodyParser = require('body-parser');
 var cors = require('cors');
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
 
 global.q = require('q');
 global.fs = require('fs');
@@ -11,8 +14,6 @@ global.dbQuery = require('./services/pgdbQuery');
 global.queries = require('./services/queryFile');
 global.commonFn = require('./services/commonFunctions');
 
-
-const app = express();
 const BASE_URL = config.BASE_URL;
 
 
@@ -29,15 +30,23 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
+app.use(express.static(__dirname + '/node_modules'));
 
 /* PING FOR TESTING API STATUS */
 app.get(BASE_URL + '/ping', (req, res) => {
   res.status(200).send("Pong");
 });
 
+app.get('/', function(req, res) {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
+
 /* KITCHEN SYSTEM APIs */
+app.post(BASE_URL + '/getProducts', require('./api/controllers/getProducts').getProducts);
 app.post(BASE_URL + '/placeOrder', require('./api/controllers/placeOrder').placeOrder);
 app.post(BASE_URL + '/predictValue', require('./api/controllers/predictValue').predictValue);
+app.post(BASE_URL + '/orderStatus', require('./api/controllers/orderStatus').orderStatus);
 
 app.use((err, req, res, next) => {
   console.log('-----Something broke!---', err);
@@ -53,11 +62,28 @@ app.get('*', (req, res) => {
   });
 });
 
+io.on('connection', function(client) {
+    console.log('Client connected...');
+
+    client.on('join', function(data) {
+        console.log(data);
+        client.emit('start', data);
+        client.broadcast.emit('start',data);
+    });
+
+    client.on('messages', function(data) {
+           client.emit('broad', data);
+           client.broadcast.emit('broad',data);
+    });
+
+});
+
 /* SERVER START */
 var port = process.env.PORT || 3000;
-global.port = port;
-var server = app.listen(port);
-server.timeout = 600000;
+server.listen(port);
+// global.port = port;
+// var serve = app.listen(port);
+// serve.timeout = 600000;
 module.exports = exports;
 
 console.log('API is running on port: ' + port);
