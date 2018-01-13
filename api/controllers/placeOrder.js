@@ -1,60 +1,43 @@
-let processOrder = (inputData, fileData) => {
+let processOrder = (inputData) => {
   let deferred = q.defer();
 
-  fileData.items.push(inputData.item);
-  fs.writeFile(ordersPath, JSON.stringify(fileData), function(err) {
-    if (err) {
-      deferred.reject({
-        code: "ERR004",
-        error: "Error occured in updating file"
-      });
-    } else {
-      deferred.resolve({
-        code: 200,
-        msg: "Your order placed successfully."
-      });
-    }
-
-  }); //fs.writeFile
+  let qry = queries.insertOrder(inputData.item);
+  // console.log('QRY::', qry);
+  dbQuery.execute(qry)
+  .then((dbResult) => {
+    // console.log('DBRES::', dbResult[0]);
+    deferred.resolve({
+      code: 200,
+      msg: 'Your order placed successfully. Your order number is ' + dbResult[0].insertorder
+    });
+  })
+  .catch((err) => {
+    deferred.reject({ dbErr: err});
+  });
 
   return deferred.promise;
 };
 
-let checkFileExists = () => {
+let checkProductExists = (input) => {
   let deferred = q.defer();
-  fs.stat(ordersPath, function(err, stat) {
-    // console.log('EEE', err, stat);
-    if (err) {
-      let fileData = {
-        items: []
-      };
-
-      fs.writeFile(ordersPath, JSON.stringify(fileData), function(err) {
-        if (err) {
-          deferred.reject({
-            code: "ERR004",
-            error: "Error occured in writing file"
-          });
-        } else {
-          deferred.resolve(fileData);
-        }
-
-      }); //fs.writeFile
+  let qry = queries.checkProductExists(input.item.productCode);
+  // console.log('QRY::', qry);
+  dbQuery.execute(qry)
+  .then((dbResult) => {
+    // console.log('DBRES::', dbResult[0]);
+    if (dbResult[0].id) {
+      deferred.resolve('productExists');
     } else {
-      fs.readFile(ordersPath, function read(err, data) {
-        if (err) {
-          deferred.reject({
-            code: "ERR005",
-            error: "Error occured in reading file"
-          });
-        } else {
-          deferred.resolve(JSON.parse(data.toString('utf8')));
-        }
-
+      deferred.reject({
+        code: "ERR004",
+        error: "Product does not exists!"
       });
     }
+  })
+  .catch((err) => {
+    deferred.reject({ dbErr: err});
+  });
 
-  }); //fs.stat
   return deferred.promise;
 };
 
@@ -67,7 +50,7 @@ let validateInput = (data) => {
     });
   } else {
     let orderItem = data.item;
-    if (!orderItem.productId) {
+    if (!orderItem.productCode) {
       deferred.reject({
         code: "ERR002",
         error: "Please select product from list"
@@ -91,11 +74,11 @@ var placeOrder = (req, res) => {
   validateInput(reqBody)
     .then((result) => {
       // console.log('VALIDATION: ', result);
-      return checkFileExists();
+      return checkProductExists(reqBody);
     })
-    .then((fileExistsData) => {
-      // console.log('FILE CHECK RES:', fileExistsData);
-      return processOrder(reqBody, fileExistsData);
+    .then((checkProductRes) => {
+      // console.log('FILE CHECK RES:', checkProductRes);
+      return processOrder(reqBody);
     })
     .then((finalRes) => {
       res.status(200).send(finalRes);

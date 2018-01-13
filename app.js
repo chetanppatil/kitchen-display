@@ -4,8 +4,12 @@ var cors = require('cors');
 
 global.q = require('q');
 global.fs = require('fs');
+global._ = require('underscore');
 global.config = require('./config/config.json');
-global.ordersPath = './data/orders.json'
+global.ordersPath = './data/orders.json';
+global.dbQuery = require('./services/pgdbQuery');
+global.queries = require('./services/queryFile');
+
 
 const app = express();
 const BASE_URL = config.BASE_URL;
@@ -32,6 +36,7 @@ app.get(BASE_URL + '/ping', (req, res) => {
 
 /* KITCHEN SYSTEM APIs */
 app.post(BASE_URL + '/placeOrder', require('./api/controllers/placeOrder').placeOrder);
+app.post(BASE_URL + '/predictValue', require('./api/controllers/predictValue').predictValue);
 
 app.use((err, req, res, next) => {
   console.log('-----Something broke!---', err);

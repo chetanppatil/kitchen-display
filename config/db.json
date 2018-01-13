@@ -1,0 +1,9 @@
+{
+  "host": "mydb.cxhorkxnlm2e.us-east-2.rds.amazonaws.com",
+  "port": "5432",
+  "database": "kitchen",
+  "user": "chetan07j",
+  "password": "ileana07",
+  "max": "10",
+  "idleTimeoutMillis": "30000"
+}
