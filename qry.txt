@@ -1,0 +1,140 @@
+--create table products(id serial not null, code text, "name" text, is_active boolean)
+--create table orders(id serial not null, order_number text, product_code text, quantity integer)
+--create table prediction(id serial not null, product_code text, predicted_value integer, predicted_on timestamp with time zone)
+
+insert into products(code, "name", is_active)
+values('jcw', 'Jumbo Chicken Wrap', true),
+	  ('vl', 'Vegetarian Lasagne', true),
+	  ('crf', 'Chicken Rice Feast', true),
+	  ('gcb', 'Grilled Chicken Breast', true);
+
+select * from products;
+select * from orders where is_completed=false and order_on::date = now()::date;
+SELECT * from prediction pr where product_code='vl';
+
+SELECT p.code, p."name", (SELECT SUM(o.quantity) FROM orders o WHERE o.is_completed = false),
+(SELECT SUM(o.quantity) AS "createdTillNow"  FROM orders o WHERE o.is_completed = true),
+(SELECT SUM(pr.predicted_value)) AS "predictedValue"
+FROM products p
+INNER JOIN orders o
+ON p.code = o.product_code --AND o.is_completed = false
+INNER JOIN prediction pr
+ON p.code = pr.product_code AND predicted_on::date = now()::date
+WHERE p.is_active = true
+GROUP BY p.code, p."name";
+
+
+SELECT p.code, p."name", (SELECT SUM(pr.predicted_value)) AS "predictedValue"
+FROM products p
+INNER JOIN prediction pr
+ON p.code = pr.product_code AND predicted_on::date = now()::date
+WHERE p.is_active = true
+GROUP BY p.code, p."name";
+
+
+SELECT * FROM orders WHERE product_code = 'jcw';
+
+truncate table orders
+
+alter table orders
+add column is_completed boolean
+
+
+-------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION insertOrder(code text, qnt integer)
+RETURNS text AS
+$$
+DECLARE last_id int;
+DECLARE order_no text;
+	BEGIN
+		SELECT id INTO last_id FROM orders ORDER BY 1 DESC LIMIT 1;
+		IF last_id is null THEN last_id = 0; END IF;
+		order_no:= 'ORD00' || last_id + 1;
+
+		INSERT INTO orders(order_number, product_code, quantity, order_on, is_completed)
+		VALUES(order_no, code, qnt, now(), false);
+		RETURN order_no;
+	END;
+$$ LANGUAGE plpgsql;
+
+select * from insertOrder('sdsd', 1)
+
+select 'ORD' || 1+1
+
+---------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION public.insert_update_prediction(code text, val integer)
+ RETURNS text
+ LANGUAGE plpgsql
+AS $function$
+DECLARE pred_id int;
+DECLARE out_val text;
+	BEGIN
+		SELECT id INTO pred_id FROM prediction WHERE product_code = code AND predicted_on::date = now()::date;
+		IF (pred_id is not null)
+		THEN
+		  UPDATE prediction
+		  SET predicted_value = val
+		  WHERE id = pred_id;
+		  out_val = 'update';
+		ELSE
+		  INSERT INTO prediction(product_code, predicted_value, predicted_on)
+		  VALUES(code, val, now());
+		  out_val = 'insert';
+		END IF;
+		RETURN out_val;
+	END;
+$function$
+
+---------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION public.get_products_data(
+OUT "productsData" json[], OUT "quantData" json[], OUT "doneData" json[])
+ RETURNS record
+ LANGUAGE plpgsql
+AS $function$
+    BEGIN
+	"productsData" := ARRAY(SELECT row_to_json(r)
+			FROM(SELECT p.code, p."name", (SELECT SUM(pr.predicted_value)) AS "predictedValue"
+				FROM products p
+				INNER JOIN prediction pr
+				ON p.code = pr.product_code AND predicted_on::date = now()::date
+				WHERE p.is_active = true
+				GROUP BY p.code, p."name"
+			)r);
+
+	"quantData" := ARRAY(SELECT row_to_json(r) FROM(
+			SELECT p.code, SUM(o.quantity) FROM orders o
+			INNER join products p
+			ON o.product_code = p.code
+			WHERE o.is_completed = false AND o.order_on::date = now()::date
+			GROUP BY p.code
+		)r);
+	"doneData" := ARRAY(SELECT row_to_json(r) FROM(
+			SELECT p.code, SUM(o.quantity) FROM orders o
+			INNER join products p
+			ON o.product_code = p.code
+			WHERE o.is_completed = true AND o.order_on::date = now()::date
+			GROUP BY p.code
+		)r);
+
+    END;
+$function$
+
+---------------------------------------------------------------------------------
+SELECT p.code, p."name", (SELECT SUM(o.quantity)) AS quantity,
+(SELECT SUM(oo.quantity)) AS "createdTillNow",
+(SELECT SUM(pr.predicted_value)) AS "predictedValue"
+FROM products p
+INNER JOIN orders o
+ON p.code = o.product_code AND o.is_completed = false AND o.order_on::date = now()::date
+INNER JOIN orders oo
+ON p.code = oo.product_code AND oo.is_completed = true AND oo.order_on::date = now()::date
+INNER JOIN prediction pr
+ON p.code = pr.product_code AND predicted_on::date = now()::date
+WHERE p.is_active = true
+GROUP BY p.code, p."name";
+
+
+select * from get_products_data
