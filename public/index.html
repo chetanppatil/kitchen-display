@@ -13,7 +13,7 @@
       <div class="col-md-12">
         <h2>Kitchen Display</h2>
         <p>Your Food Order Mania:</p>
-        <table class="table table-bordered">
+        <table class="table table-bordered" ng-if="orderData.length > 0">
           <tr>
             <th>Name</th>
             <th>Quantity</th>
@@ -31,6 +31,11 @@
             </td>
           </tr>
         </table>
+
+        <p ng-if="orderData.length == 0">Currently there is no order.</p>
+
+        <br />
+        <button ng-if="orderData.length > 0" ng-click="downloadReport(true)" type="button" class="btn btn-primary">Download Report</button>
       </div>
     </div>
   </div>
