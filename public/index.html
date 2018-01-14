@@ -2,17 +2,14 @@
 <html lang="en">
 
 <head>
-
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 </head>
 
-<body>
+<body ng-app="myApp" ng-controller="myCtrl">
   <h1>Hello World!</h1>
-  <!-- <div id="future"></div>
-  <form id="form" id="chat_form">
-    <input id="chat_input" type="text">
-    <input type="submit" value="Send">
-  </form> -->
 
+  <!-- Full Name: {{firstName + " " + lastName}} -->
+  {{orderData}}
   <table border="1">
     <tr>
       <th>Name</th>
@@ -21,28 +18,22 @@
       <th>Predicted</th>
       <th>Status</th>
     </tr>
-    <tr></tr>
+    <tr ng-repeat="od in orderData">
+      <td>{{od.name}}</td>
+      <td>{{od.quantity}}</td>
+      <td>{{od.createdTillNow}}</td>
+      <td>{{od.predictedValue}}</td>
+      <td>
+        <button ng-click="updateStatus(od)">DONE</button>
+      </td>
+    </tr>
   </table>
 
 
 
-  <script src="/jquery/dist/jquery.js"></script>
+  <!-- <script src="/jquery/dist/jquery.js"></script> -->
   <script src="/socket.io/socket.io.js"></script>
-  <script>
-    var socket = io.connect();
-    socket.on('connect', function(data) {
-      socket.emit('join', 'Hello World from client');
-    });
-    socket.on('broad', function(data) {
-      // $('#future').append(data + "<br/>");
-    });
-
-    $('form').submit(function(e) {
-      e.preventDefault();
-      var message = $('#chat_input').val();
-      socket.emit('messages', message);
-    });
-  </script>
+  <script src="/app.js"></script>
 </body>
 
 </html>

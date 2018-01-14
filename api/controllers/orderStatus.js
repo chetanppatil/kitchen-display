@@ -7,7 +7,10 @@ let updateOrder = (inputData) => {
   .then((dbResult) => {
     // console.log('DBRES::', dbResult);
     if (_.isEmpty(dbResult)) {
-      deferred.resolve('done');
+      deferred.resolve({
+        code: 200,
+        msg: "Order completed successfully."
+      });
     } else {
       deferred.reject({
         code: 'ERR0008',

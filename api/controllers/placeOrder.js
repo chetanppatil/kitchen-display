@@ -58,6 +58,7 @@ var placeOrder = (req, res) => {
       return processOrder(reqBody);
     })
     .then((finalRes) => {
+      req.app.io.emit('statusUpdate', 'Status updated');
       res.status(200).send(finalRes);
     })
     .catch((err) => {

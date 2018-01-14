@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
+app.io = io;
 
 global.q = require('q');
 global.fs = require('fs');
@@ -31,6 +32,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use(express.static(__dirname + '/node_modules'));
+app.use(express.static(__dirname + '/public'));
 
 /* PING FOR TESTING API STATUS */
 app.get(BASE_URL + '/ping', (req, res) => {
@@ -43,7 +45,7 @@ app.get('/', function(req, res) {
 
 
 /* KITCHEN SYSTEM APIs */
-app.post(BASE_URL + '/getProducts', require('./api/controllers/getProducts').getProducts);
+app.get(BASE_URL + '/getProducts', require('./api/controllers/getProducts').getProducts);
 app.post(BASE_URL + '/placeOrder', require('./api/controllers/placeOrder').placeOrder);
 app.post(BASE_URL + '/predictValue', require('./api/controllers/predictValue').predictValue);
 app.post(BASE_URL + '/orderStatus', require('./api/controllers/orderStatus').orderStatus);
@@ -62,18 +64,18 @@ app.get('*', (req, res) => {
   });
 });
 
-io.on('connection', function(client) {
+io.on('connection', (client) => {
     console.log('Client connected...');
 
-    client.on('join', function(data) {
+    client.on('join', (data) => {
         console.log(data);
         client.emit('start', data);
         client.broadcast.emit('start',data);
     });
 
-    client.on('messages', function(data) {
-           client.emit('broad', data);
-           client.broadcast.emit('broad',data);
+    client.on('statusUpdate', (data) => {
+           client.emit('statusUpdate', data);
+           client.broadcast.emit('statusUpdate',data);
     });
 
 });

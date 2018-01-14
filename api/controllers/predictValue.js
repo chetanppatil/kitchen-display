@@ -73,6 +73,7 @@ var predictValue = (req, res) => {
       return insertValue(reqBody);
     })
     .then((finalRes) => {
+      req.app.io.emit('statusUpdate', 'Status updated');
       res.status(200).send(finalRes);
     })
     .catch((err) => {
