@@ -3,35 +3,38 @@
 
 <head>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 
 <body ng-app="myApp" ng-controller="myCtrl">
-  <h1>Hello World!</h1>
 
-  <!-- Full Name: {{firstName + " " + lastName}} -->
-  {{orderData}}
-  <table border="1">
-    <tr>
-      <th>Name</th>
-      <th>Quantity</th>
-      <th>Created Till Now</th>
-      <th>Predicted</th>
-      <th>Status</th>
-    </tr>
-    <tr ng-repeat="od in orderData">
-      <td>{{od.name}}</td>
-      <td>{{od.quantity}}</td>
-      <td>{{od.createdTillNow}}</td>
-      <td>{{od.predictedValue}}</td>
-      <td>
-        <button ng-click="updateStatus(od)">DONE</button>
-      </td>
-    </tr>
-  </table>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h2>Kitchen Display</h2>
+        <p>Your Food Order Mania:</p>
+        <table class="table table-bordered">
+          <tr>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Created Till Now</th>
+            <th>Predicted</th>
+            <th>Status</th>
+          </tr>
+          <tr ng-repeat="od in orderData">
+            <td>{{od.name}}</td>
+            <td>{{od.quantity}}</td>
+            <td>{{od.createdTillNow}}</td>
+            <td>{{od.predictedValue}}</td>
+            <td>
+              <button ng-if="od.quantity > 0" ng-click="updateStatus(od)" type="button" class="btn btn-success btn-xs">DONE</button>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
 
-
-
-  <!-- <script src="/jquery/dist/jquery.js"></script> -->
   <script src="/socket.io/socket.io.js"></script>
   <script src="/app.js"></script>
 </body>
