@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+
+<body ng-app="myApp" ng-controller="myCtrl">
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <h2>Place Order</h2>
+        <form>
+
+          <div class="form-group">
+            <label for="sel1">Select Product:</label>
+            <select class="form-control" ng-model="productCode" ng-options="d.code as d.name for d in prodArr" required>
+                  <option value="">--- Please Select ---</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="usr">Quantity:</label>
+            <input type="text" class="form-control" ng-model="qnt">
+          </div>
+        </form>
+        <br />
+        <div class="alert alert-danger" ng-if="errP">
+          {{ errP }}
+        </div>
+        <div class="alert alert-success" ng-if="msgP">
+          {{ msgP }}
+        </div>
+        <button ng-click="placeOrder(productCode, qnt)" type="button" class="btn btn-success">Place Order</button>
+      </div>
+
+      <div class="col-md-4"></div>
+
+      <div class="col-md-4">
+        <h2>Predict Value</h2>
+        <form>
+
+          <div class="form-group">
+            <label for="sel1">Select Product:</label>
+            <select class="form-control" ng-model="productId" ng-options="d.code as d.name for d in prodArr" required>
+                  <option value="">--- Please Select ---</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="usr">Quantity:</label>
+            <input type="text" class="form-control" ng-model="predQnt">
+          </div>
+        </form>
+        <br />
+        <div class="alert alert-danger" ng-if="err">
+          {{ err }}
+        </div>
+        <div class="alert alert-success" ng-if="msg">
+          {{ msg }}
+        </div>
+        <button ng-click="predictVal(productId, predQnt)" type="button" class="btn btn-primary">Predict</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/app.js"></script>
+</body>
+
+</html>

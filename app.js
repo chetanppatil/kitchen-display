@@ -43,6 +43,10 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/public/index.html');
 });
 
+app.get('/dashboard', function(req, res) {
+  res.sendFile(__dirname + '/public/operate.html');
+});
+
 
 /* KITCHEN SYSTEM APIs */
 app.get(BASE_URL + '/getProducts', require('./api/controllers/getProducts').getProducts);

@@ -54,6 +54,83 @@ app.controller('myCtrl', function($scope, $http) {
       });
   };
 
+  var getProductList = () => {
+    $http({
+        method: "GET",
+        url: "/kitchen-display/getProducts"
+      })
+      .then((response) => {
+        // $scope.myWelcome = response.data;
+        if (response.data && response.data.data) {
+          $scope.prodArr = response.data.data
+        }
+      })
+      .catch((err) => {
+        $scope.myWelcome = err;
+      });
+  };
+
+  getProductList();
+
+
+  $scope.placeOrder = (code, qnt) => {
+    clear();
+    var reqBody = {
+      "item": {
+        "productCode": code,
+        "quantity": qnt
+      }
+    };
+    // console.log('item::', reqBody);
+    $http({
+        method: "POST",
+        url: "/kitchen-display/placeOrder",
+        data: reqBody
+      })
+      .then((response) => {
+        // console.log('STAT:', response);
+        $scope.msgP = response.data.msg;
+        $scope.productCode = '';
+        $scope.qnt = '';
+      })
+      .catch((err) => {
+        // console.log(err);
+        $scope.errP = err.data.error;
+      });
+  };
+
+  $scope.predictVal = (code, qnt) => {
+    clear();
+    var reqBody = {
+      "item": {
+        "productCode": code,
+        "predictedValue": qnt
+      }
+    };
+    // console.log('item::', reqBody);
+    $http({
+        method: "POST",
+        url: "/kitchen-display/predictValue",
+        data: reqBody
+      })
+      .then((response) => {
+        // console.log('STAT:', response);
+        $scope.msg = response.data.msg;
+        $scope.productId = '';
+        $scope.predQnt = '';
+      })
+      .catch((err) => {
+        $scope.err = err.data.error;
+      });
+  };
+
+  var clear = function(){
+    $scope.msg = null;
+    $scope.err = null;
+    $scope.msgP = null;
+    $scope.errP = null;
+  };
+
   /*======= JSON to CSV Code STARTS =========*/
   $scope.downloadReport = function(showLabel) {
     //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
